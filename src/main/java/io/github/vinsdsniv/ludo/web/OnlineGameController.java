@@ -28,13 +28,14 @@ public class OnlineGameController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OnlineGames.Ticket create() {
-        return games.create();
+    public OnlineGames.Ticket create(@RequestBody(required = false) Profile profile) {
+        return games.create(profile == null ? null : profile.nickname());
     }
 
     @PostMapping("/{id}/join")
-    public OnlineGames.Ticket join(@PathVariable UUID id, @RequestHeader(TOKEN) UUID token) {
-        return games.join(id, GameErrors.required(token));
+    public OnlineGames.Ticket join(@PathVariable UUID id, @RequestHeader(TOKEN) UUID token,
+                                   @RequestBody(required = false) Profile profile) {
+        return games.join(id, GameErrors.required(token), profile == null ? null : profile.nickname());
     }
 
     @GetMapping("/{id}")
@@ -55,6 +56,13 @@ public class OnlineGameController {
         return games.move(id, GameErrors.required(token), GameErrors.required(request.token()),
                 GameErrors.required(request.revision()));
     }
+
+    @PostMapping("/{id}/resign")
+    public OnlineGames.View resign(@PathVariable UUID id, @RequestHeader(TOKEN) UUID token) {
+        return games.resign(id, GameErrors.required(token));
+    }
+
+    public record Profile(String nickname) {}
 
     @ExceptionHandler(OnlineGames.AccessDenied.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)

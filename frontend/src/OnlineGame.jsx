@@ -51,6 +51,7 @@ export function OnlineGame() {
   const [room, setRoom] = useState(invitedRoom);
   const [token, setToken] = useState(() => room && sessionStorage.getItem(storageKey(room)));
   const [view, setView] = useState(null);
+  const [nickname, setNickname] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [connection, setConnection] = useState('');
@@ -116,7 +117,7 @@ export function OnlineGame() {
   }
 
   function create() {
-    perform(async () => connect(await request('', { method: 'POST' })));
+    perform(async () => connect(await request('', { method: 'POST', body: { nickname } })));
   }
 
   function join() {
@@ -124,18 +125,28 @@ export function OnlineGame() {
       const candidate = sessionStorage.getItem(joinKey(room)) ?? randomToken();
       sessionStorage.setItem(joinKey(room), candidate);
       connect(await request('/' + encodeURIComponent(room) + '/join', {
-        method: 'POST', token: candidate,
+        method: 'POST', token: candidate, body: { nickname },
       }));
     });
   }
 
-  function play(action, extra = {}) {
+  function sendAction(action, body) {
     perform(async () => {
       const current = await request('/' + room + '/' + action, {
-        method: 'POST', token, body: { revision: view.state.revision, ...extra },
+        method: 'POST', token, body,
       });
       setView(previous => newest(previous, current));
     });
+  }
+
+  function play(action, extra = {}) {
+    sendAction(action, { revision: view.state.revision, ...extra });
+  }
+
+  function resign() {
+    if (window.confirm('Abandonner la partie et donner la victoire à l’autre joueur ?')) {
+      sendAction('resign');
+    }
   }
 
   function leave() {
@@ -162,7 +173,10 @@ export function OnlineGame() {
   const state = view?.state;
   const myTurn = view?.ready && state.turn === view.player && state.winner === null;
   const canPlay = myTurn && !busy && !connection;
-  const current = state && colors[state.winner ?? state.turn];
+  const currentPlayer = state && (state.winner ?? state.turn);
+  const current = state && colors[currentPlayer];
+  const currentName = view?.nicknames[currentPlayer];
+  const inProgress = view?.ready && !expired && state.winner === null;
 
   return (
     <div className="layout">
@@ -170,14 +184,31 @@ export function OnlineGame() {
       <aside>
         <section className="panel">
           <h2>Partie en ligne</h2>
-          {!room && <button className="primary" disabled={busy} onClick={create}>Créer une partie</button>}
-          {room && !token && <>
-            <p>Tu as reçu une invitation à jouer.</p>
-            <button className="primary" disabled={busy} onClick={join}>Rejoindre la partie</button>
-          </>}
+          {!token && (
+            <form className="online-profile" onSubmit={event => {
+              event.preventDefault();
+              if (room) join();
+              else create();
+            }}>
+              {room && <p>Tu as reçu une invitation à jouer.</p>}
+              <label htmlFor="online-nickname">Pseudo (facultatif)</label>
+              <input id="online-nickname" value={nickname} maxLength={24} disabled={busy}
+                onChange={event => setNickname(event.target.value)} />
+              <button type="submit" className="primary" disabled={busy}>
+                {room ? 'Rejoindre la partie' : 'Créer une partie'}
+              </button>
+            </form>
+          )}
           {token && !view && !connection && <p role="status">Connexion à la partie…</p>}
           {view && !expired && <>
-            <p>Tu joues les pions <strong>{colors[view.player].name.toLowerCase()}</strong>.</p>
+            <ul className="online-players" aria-label="Joueurs">
+              {view.nicknames.map((name, index) => (
+                <li key={index} style={{ '--player-color': colors[index].ink }}>
+                  <span className="player-dot" aria-hidden="true" />
+                  <strong>{name}</strong> <span>· {colors[index].name}{index === view.player && ' · Toi'}</span>
+                </li>
+              ))}
+            </ul>
             {!view.ready ? (
               <div className="invite">
                 <p role="status">En attente du deuxième joueur.</p>
@@ -192,8 +223,11 @@ export function OnlineGame() {
                 </span>
                 <div>
                   <strong>{state.winner === null
-                    ? (myTurn ? 'À toi de jouer' : 'Tour de ' + current.name)
-                    : (state.winner === view.player ? 'Tu as gagné !' : current.name + ' a gagné !')}</strong>
+                    ? (myTurn ? 'À toi de jouer' : 'Tour de ' + currentName)
+                    : (state.winner === view.player ? 'Tu as gagné !' : currentName + ' a gagné !')}</strong>
+                  {view.resignedBy != null && <div>{view.resignedBy === view.player
+                    ? 'Tu as abandonné.'
+                    : view.nicknames[view.resignedBy] + ' a abandonné.'}</div>}
                   {myTurn && <div>{state.die === null ? 'Lance le dé.' : 'Choisis un pion à déplacer.'}</div>}
                 </div>
               </div>
@@ -211,8 +245,10 @@ export function OnlineGame() {
           </>}
           {connection && <p className="error" role="status">{connection}</p>}
           {error && <p className="error" role="alert">{error}</p>}
-          {room && <button className="secondary leave" disabled={busy} onClick={leave}>
-            {view && !expired ? 'Quitter cette partie sur cet écran' : 'Retour'}
+          {inProgress && <button className="secondary leave resign" disabled={busy || !!connection}
+            onClick={resign}>Abandonner la partie</button>}
+          {room && !inProgress && <button className="secondary leave" disabled={busy} onClick={leave}>
+            {view && !expired ? 'Retour à l’accueil en ligne' : 'Retour'}
           </button>}
         </section>
       </aside>

@@ -55,6 +55,14 @@ button:disabled { opacity: .6; }
 .mode { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
 .mode [aria-pressed="true"] { color: #fff; background: #293e32; }
 .invite { display: grid; gap: 8px; margin-top: 12px; }
-.invite input { width: 100%; min-width: 0; padding: 7px; border: 1px solid #6a756a; border-radius: 8px; font: inherit; }
+.invite input, .online-profile input { width: 100%; min-width: 0; padding: 7px; border: 1px solid #6a756a; border-radius: 8px; font: inherit; }
 .invite button { justify-self: start; }
 .leave { margin-top: 12px; }
+
+.online-profile { display: grid; gap: 8px; }
+.online-profile .primary { margin-top: 0; }
+.online-players { list-style: none; margin: 0; padding: 0; }
+.online-players li { margin-bottom: 4px; overflow-wrap: anywhere; }
+.player-dot { display: inline-block; width: .65em; height: .65em; margin-right: .4em; border-radius: 50%; background: var(--player-color); }
+.turn { overflow-wrap: anywhere; }
+.resign { color: #a62435; border-color: #a62435; }

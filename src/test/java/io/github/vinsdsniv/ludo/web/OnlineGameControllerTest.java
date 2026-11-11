@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.vinsdsniv.ludo.application.OnlineGames;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -73,6 +74,45 @@ class OnlineGameControllerTest {
     void unknownInviteReturnsNotFound() throws Exception {
         join(ROOMS + "/" + UUID.randomUUID(), UUID.randomUUID().toString())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void sharesNicknamesAndLetsTheGuestResignOutsideTheirTurn() throws Exception {
+        JsonNode host = body(mvc.perform(post(ROOMS).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("nickname", "  Camille  "))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.game.nicknames[0]").value("Camille")));
+        String room = room(host);
+        mvc.perform(post(room + "/resign").header(TOKEN, token(host)))
+                .andExpect(status().isConflict());
+
+        String guest = UUID.randomUUID().toString();
+        mvc.perform(post(room + "/join").header(TOKEN, guest).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("nickname", "x".repeat(25)))))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post(room + "/join").header(TOKEN, guest).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("nickname", "Noé"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.game.nicknames[0]").value("Camille"))
+                .andExpect(jsonPath("$.game.nicknames[1]").value("Noé"))
+                .andExpect(jsonPath("$.game.state.turn").value(0));
+
+        mvc.perform(post(room + "/resign").header(TOKEN, UUID.randomUUID().toString()))
+                .andExpect(status().isForbidden());
+        mvc.perform(post(room + "/resign").header(TOKEN, guest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state.winner").value(0))
+                .andExpect(jsonPath("$.state.revision").value(1))
+                .andExpect(jsonPath("$.resignedBy").value(1));
+        mvc.perform(post(room + "/resign").header(TOKEN, guest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state.revision").value(1));
+        mvc.perform(get(room).header(TOKEN, token(host)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nicknames[1]").value("Noé"))
+                .andExpect(jsonPath("$.resignedBy").value(1))
+                .andExpect(jsonPath("$.state.winner").value(0));
+        play(room, "/roll", token(host), "{\"revision\":1}").andExpect(status().isConflict());
     }
 
     private JsonNode create() throws Exception {

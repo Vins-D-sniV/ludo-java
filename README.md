@@ -6,7 +6,9 @@ Jeu de Ludo en français pour 2 à 4 personnes sur le même écran ou deux perso
 
 1. Sur le premier écran, sélectionne **En ligne à deux**, puis **Créer une partie**.
 2. Envoie le **Lien d’invitation** à l’autre joueur. Il l’ouvre sur son écran et clique sur **Rejoindre la partie**.
-3. Le joueur qui crée la partie joue en rouge et commence. L’invité joue en vert. Les deux écrans se mettent à jour automatiquement.
+3. Choisis un pseudo au moment de créer ou de rejoindre la partie. Il s’affiche sur les deux écrans. Le joueur qui crée la partie joue en rouge et commence. L’invité joue en vert. Les deux écrans se mettent à jour automatiquement.
+
+Le bouton **Abandonner la partie** donne la victoire à l’autre joueur après confirmation, quel que soit le tour en cours.
 
 Chaque écran conserve sa place tant que son onglet reste ouvert, y compris après une actualisation. Les parties sont conservées en mémoire et disparaissent au redémarrage du serveur. Le bouton **Même écran** donne accès au jeu local à 2–4 joueurs.
 

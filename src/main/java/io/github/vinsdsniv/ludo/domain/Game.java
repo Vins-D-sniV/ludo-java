@@ -65,6 +65,16 @@ public final class Game {
         revision++;
     }
 
+    public void forfeit(int player) {
+        if (positions.length != 2 || player < 0 || player >= positions.length) {
+            throw new IllegalArgumentException("L’abandon s’applique à une partie à deux.");
+        }
+        checkAction(revision);
+        winner = 1 - player;
+        die = null;
+        revision++;
+    }
+
     public State state() {
         List<List<Integer>> players = Arrays.stream(positions)
                 .map(tokens -> Arrays.stream(tokens).boxed().toList())
