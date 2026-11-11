@@ -52,7 +52,7 @@ export function LocalGame() {
   const current = game ? colors[game.winner ?? game.turn] : null;
   return (
     <div className="layout">
-      <Board game={game} onMove={token => action('move', { token })} busy={busy} />
+      <Board key={session?.id} game={game} onMove={token => action('move', { token })} busy={busy} />
       <aside>
         <section className="panel">
           <h2>Partie</h2>

@@ -8,13 +8,30 @@ h1 { font-family: Georgia, serif; font-size: clamp(3rem, 7vw, 5.5rem); line-heig
 header p { margin-top: 8px; color: #4d574e; }
 .layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(270px, 1fr); gap: clamp(16px, 3vw, 32px); align-items: start; }
 .board { display: grid; grid-template: repeat(15, minmax(0, 1fr)) / repeat(15, minmax(0, 1fr)); aspect-ratio: 1; background: #d9d2c4; gap: 1px; padding: 3px; border: 2px solid #292f29; border-radius: 10px; overflow: hidden; }
-.yard { display: grid; align-items: end; justify-items: center; padding: 8%; font-size: clamp(.65rem, 1.5vw, 1rem); font-weight: 750; }
+.yard { position: relative; display: grid; align-items: end; justify-items: center; padding: 8%; font-size: clamp(.65rem, 1.5vw, 1rem); font-weight: 750; }
 .center { grid-area: 7 / 7 / 10 / 10; background: conic-gradient(from 45deg, #ffe0a0 25%, #bfdaf3 0 50%, #f7c6c9 0 75%, #bde3cd 0); }
 .cell { display: grid; place-items: center; background: #fffdf8; font-size: clamp(.6rem, 1.5vw, 1.15rem); line-height: 1; }
-.stack { z-index: 1; display: grid; grid-template: repeat(var(--stack-size), minmax(0, 1fr)) / repeat(var(--stack-size), minmax(0, 1fr)); place-items: center; }
-.piece { width: 82%; aspect-ratio: 1; display: grid; place-items: center; border: 1px solid #fff; border-radius: 50%; color: white; font: 700 clamp(.55rem, 1.1vw, .8rem)/1 system-ui; padding: 0; }
-.stack { container-type: inline-size; }
-.stack .piece { font-size: clamp(4px, calc(48cqw / var(--stack-size)), 13px); }
+.yard-slots {
+  position: absolute;
+  inset: 33.333%;
+  border: 1px solid #292f2959;
+  border-radius: 4px;
+  background:
+    linear-gradient(#292f294d, #292f294d) center / 1px 100% no-repeat,
+    linear-gradient(#292f294d, #292f294d) center / 100% 1px no-repeat,
+    #ffffff35;
+}
+.piece-slot {
+  z-index: 1;
+  display: grid;
+  grid-template: repeat(var(--stack-size), minmax(0, 1fr)) / repeat(var(--stack-size), minmax(0, 1fr));
+  place-items: center;
+  container-type: inline-size;
+  pointer-events: none;
+}
+.piece-slot .piece:enabled { pointer-events: auto; }
+.piece-slot .piece:disabled:not(.playable) { opacity: 1; }
+.piece { width: 82%; aspect-ratio: 1; display: grid; place-items: center; border: 1px solid #fff; border-radius: 50%; color: white; font: 700 clamp(4px, calc(48cqw / var(--stack-size)), 13px)/1 system-ui; padding: 0; }
 .playable { outline: 2px solid #232923; cursor: pointer; z-index: 1; }
 button:focus-visible, select:focus-visible { outline: 3px solid #274eaa; outline-offset: 2px; }
 aside { display: grid; gap: 16px; }

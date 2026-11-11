@@ -166,7 +166,7 @@ export function OnlineGame() {
 
   return (
     <div className="layout">
-      <Board game={state} busy={!canPlay} onMove={piece => play('move', { token: piece })} />
+      <Board key={view?.id} game={state} busy={!canPlay} onMove={piece => play('move', { token: piece })} />
       <aside>
         <section className="panel">
           <h2>Partie en ligne</h2>

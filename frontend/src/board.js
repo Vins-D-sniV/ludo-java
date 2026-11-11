@@ -33,3 +33,12 @@ export function tokenCell(player, token, step) {
 export function placement([row, column]) {
   return { gridRow: row + 1, gridColumn: column + 1 };
 }
+
+export function tokenPath(player, token, from, to) {
+  const start = tokenCell(player, token, from);
+  if (from < 0 || to <= from || to - from > 6) {
+    return [start, tokenCell(player, token, to)];
+  }
+  return Array.from({ length: to - from + 1 }, (_, index) =>
+    tokenCell(player, token, from + index));
+}
