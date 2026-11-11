@@ -1,8 +1,35 @@
 # Ludo Java
 
-Jeu de Ludo en français pour 2 à 4 personnes sur le même écran. React affiche le plateau et Spring Boot gère les tours, les dés, les déplacements et la victoire.
+Jeu de Ludo en français pour 2 à 4 personnes sur le même écran ou deux personnes en ligne. React affiche le plateau et Spring Boot gère les tours, les dés, les déplacements et la victoire.
 
-## Démarrer sur PC
+## Jouer en ligne à deux
+
+1. Sur le premier écran, sélectionne **En ligne à deux**, puis **Créer une partie**.
+2. Envoie le **Lien d’invitation** à l’autre joueur. Il l’ouvre sur son écran et clique sur **Rejoindre la partie**.
+3. Le joueur qui crée la partie joue en rouge et commence. L’invité joue en vert. Les deux écrans se mettent à jour automatiquement.
+
+Chaque écran conserve sa place tant que son onglet reste ouvert, y compris après une actualisation. Les parties sont conservées en mémoire et disparaissent au redémarrage du serveur. Le bouton **Même écran** donne accès au jeu local à 2–4 joueurs.
+
+### Utiliser deux appareils
+
+Les deux joueurs doivent ouvrir la même adresse, reliée au même serveur. Pour jouer depuis des réseaux différents, publie le JAR ci-dessous sur un serveur Java accessible en HTTPS. Pour jouer sur le même réseau Wi-Fi, ouvre le jeu via l’adresse IP locale du PC qui héberge le serveur. Par exemple, si le PC utilise `192.168.1.20`, les deux joueurs ouvrent `http://192.168.1.20:8080`. Le pare-feu du PC doit autoriser l’accès au port 8080 sur ce réseau privé.
+
+Depuis la racine du dépôt, construis le frontend puis le JAR qui l’embarque.
+
+```powershell
+cd frontend
+npm.cmd ci
+npm.cmd run build
+cd ..
+mvn clean verify
+java -jar target/ludo-java-0.1.0-SNAPSHOT.jar
+```
+
+Le serveur expose l’interface et les API sur le même port. Pour essayer sur un seul PC, ouvre [le jeu](http://localhost:8080) dans une fenêtre normale et ouvre l’invitation dans une fenêtre de navigation privée.
+
+
+
+## Développer sur PC
 
 Il faut Java 17 ou supérieur, Maven 3.6.3 ou supérieur et Node.js 20.19+ (branche 20) ou 22.12+.
 

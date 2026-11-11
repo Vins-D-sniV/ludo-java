@@ -17,7 +17,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 class GameControllerTest {
     private static final String GAMES = "/api/games";
 
-    private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new GameController(new Games())).build();
+    private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new GameController(new Games()))
+            .setControllerAdvice(new GameErrors())
+            .build();
 
     private final ObjectMapper json = new ObjectMapper();
 

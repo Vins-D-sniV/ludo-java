@@ -34,3 +34,10 @@ button:disabled { opacity: .6; }
 .rules li + li { margin-top: 6px; }
 .error { margin-top: 10px; color: #a62435; }
 @media (max-width: 730px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.mode { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.mode [aria-pressed="true"] { color: #fff; background: #293e32; }
+.invite { display: grid; gap: 8px; margin-top: 12px; }
+.invite input { width: 100%; min-width: 0; padding: 7px; border: 1px solid #6a756a; border-radius: 8px; font: inherit; }
+.invite button { justify-self: start; }
+.leave { margin-top: 12px; }

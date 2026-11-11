@@ -1,11 +1,8 @@
 package io.github.vinsdsniv.ludo.web;
 
 import io.github.vinsdsniv.ludo.application.Games;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +23,7 @@ public class GameController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Games.Session create(@RequestBody NewGame request) {
-        return games.create(required(request.players()));
+        return games.create(GameErrors.required(request.players()));
     }
 
     @GetMapping("/{id}")
@@ -36,37 +33,12 @@ public class GameController {
 
     @PostMapping("/{id}/roll")
     public Games.Session roll(@PathVariable UUID id, @RequestBody Roll request) {
-        return games.roll(id, required(request.revision()));
+        return games.roll(id, GameErrors.required(request.revision()));
     }
 
     @PostMapping("/{id}/move")
     public Games.Session move(@PathVariable UUID id, @RequestBody Move request) {
-        return games.move(id, required(request.token()), required(request.revision()));
-    }
-
-    private static <T> T required(T value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Un champ obligatoire est manquant.");
-        }
-        return value;
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> invalid(IllegalArgumentException error) {
-        return Map.of("message", error.getMessage());
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> conflict(IllegalStateException error) {
-        return Map.of("message", error.getMessage());
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> missing(NoSuchElementException error) {
-        return Map.of("message", error.getMessage());
+        return games.move(id, GameErrors.required(request.token()), GameErrors.required(request.revision()));
     }
 
     public record NewGame(Integer players) {}
